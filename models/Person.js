@@ -2,7 +2,8 @@ const mongoose = require('mongoose')
 const url = process.env.MONGODB_URI
 console.log(url)
 mongoose.connect(url)
-const Person = mongoose.model('Person', {
+
+const Person = mongoose.Schema({
     id: {
       type: Number,
       required: true
@@ -29,4 +30,4 @@ const Person = mongoose.model('Person', {
 //     mongoose.connection.close()
 // })
 
-module.exports = mongoose.model('Person', personSchema)
+module.exports = mongoose.model('Person', Person)

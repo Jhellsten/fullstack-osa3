@@ -6,7 +6,7 @@ require('dotenv').config()
 const morgan = require('morgan')
 const mongoose = require('mongoose')
 
-const Person = './models/Person.js'
+const Person =  require('./models/Person')
 
 const url = process.env.MONGODB_URI
 mongoose.connect(url, { useNewUrlParser: true })
@@ -46,7 +46,11 @@ app.get('/api/', (request, response) => {
 app.get('/api/persons', async (request, response) => {
   try {
     const res = await Person.find({})
-    response.json(res.map(formatPerson()))
+    if(res.length === 0) {
+      return []
+    }
+    const formatted = await res.map(i => formatPerson(i))
+    response.json(formatted)
   } catch (error) {
     console.log(error)
     response.status(404).end()
@@ -80,7 +84,7 @@ app.get('/api/info', (request, response) => {
 app.post('/api/persons', async (request, response) => {
   try {
     const body = request.body
-    const id = Math.floor(Math.random() * Math.floor(1000))
+    // const id = Math.floor(Math.random() * Math.floor(1000))
   
     if (body.name === undefined) {
       return response.status(400).json({error: 'name missing'})
@@ -102,17 +106,28 @@ app.post('/api/persons', async (request, response) => {
     // }
   
     const savedPerson = await person.save()
-    response.json(formatPerson())
+    response.json(formatPerson(savedPerson))
   
   } catch (error) {
     response.status(404).end()
   }
 
 })
-app.delete('/api/persons/:id', (request, response) => {
+
+app.put('/api/persons/:id', async (request, response) => {
   try {
-    const id = Number(request.params.id)
-  person = persons.filter(person => person.id === id)
+    const body = request.body
+    const res = await Person.findOneAndUpdate(request.params.id, body, { new: true } )
+    response.json(formatPerson(res))
+  } catch (error) {
+    console.log(error)
+    response.status(400).send({ error: 'malformatted id' })
+  }
+  
+})
+app.delete('/api/persons/:id', async (request, response) => {
+  try {
+    const person = await Person.findByIdAndDelete(request.params.id)
   if ( person ) {
     response.status(204).end()
   } else {
