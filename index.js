@@ -2,7 +2,16 @@ const express = require('express')
 const app = express()
 const bodyParser = require('body-parser')
 const cors = require('cors')
+require('dotenv').config()
 const morgan = require('morgan')
+const mongoose = require('mongoose')
+
+const Person = '/models/Person.js'
+
+const url = process.env.MONGODB_URI
+console.log(url)
+mongoose.connect(url, { useNewUrlParser: true })
+
 
 let persons = [
     { name: 'Arto Hellas', number: '040-123456', id: 1 },
@@ -23,12 +32,13 @@ app.get('/api/', (request, response) => {
     response.send('<h1>Hello World!</h1>')
   })
 
-app.get('/api/persons', (request, response) => {
-    response.json(persons)
+app.get('/api/persons', async (request, response) => {
+    const res = await Person.find({})
+    response.json(res.map(Person.formatPerson()))
   })
 app.get('/api/persons/:id', (request, response) => {
-  const id = Number(request.params.id)
-  const person = persons.find(person => person.id === id)
+  const person = await Person.findById(request.params.id)
+  response.json(Person.formatPerson(person))
 
   if ( person ) {
     response.json(person)
@@ -46,7 +56,6 @@ app.get('/api/info', (request, response) => {
 app.post('/api/persons', (request, response) => {
   const body = request.body
   const id = Math.floor(Math.random() * Math.floor(1000))
-  // console.log(id)
 
   if (body.name === undefined) {
     return response.status(400).json({error: 'name missing'})
@@ -55,11 +64,11 @@ app.post('/api/persons', (request, response) => {
     return response.status(400).json({error: 'number missing'})
   }
 
-  const person = {
+  const person = new Person({
+    id,
     name: body.name,
-    number: body.number,
-    id
-  }
+    number: body.number
+  })
   // if(persons.filter(person => person.name === body.name)) {
   //   throw new Error('name must be unique')
   // }
@@ -67,9 +76,9 @@ app.post('/api/persons', (request, response) => {
   //   throw new Error('number must be unique')
   // }
 
-  persons = persons.concat(person)
+  const savedPerson = await person.save()
+  response.json(Person.formatPerson(savedPerson))
 
-  response.json(person)
 })
 app.delete('/api/persons/:id', (request, response) => {
   const id = Number(request.params.id)
