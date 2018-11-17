@@ -94,7 +94,6 @@ app.post('/api/persons', async (request, response) => {
     }
   
     const person = new Person({
-      id,
       name: body.name,
       number: body.number
     })
