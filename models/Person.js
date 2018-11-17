@@ -4,10 +4,6 @@ console.log(url)
 mongoose.connect(url)
 
 const Person = mongoose.Schema({
-    id: {
-      type: Number,
-      required: true
-    },
     name: {
       type: String,
       required: true
