@@ -6,7 +6,7 @@ require('dotenv').config()
 const morgan = require('morgan')
 const mongoose = require('mongoose')
 
-const Person = '/models/Person.js'
+const Person = './models/Person.js'
 
 const url = process.env.MONGODB_URI
 mongoose.connect(url, { useNewUrlParser: true })
