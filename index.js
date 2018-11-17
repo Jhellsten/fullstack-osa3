@@ -36,7 +36,7 @@ app.get('/api/persons', async (request, response) => {
     const res = await Person.find({})
     response.json(res.map(Person.formatPerson()))
   })
-app.get('/api/persons/:id', (request, response) => {
+app.get('/api/persons/:id', async (request, response) => {
   const person = await Person.findById(request.params.id)
   response.json(Person.formatPerson(person))
 
@@ -53,7 +53,7 @@ app.get('/api/info', (request, response) => {
     ${date}
     `)
   })
-app.post('/api/persons', (request, response) => {
+app.post('/api/persons', async (request, response) => {
   const body = request.body
   const id = Math.floor(Math.random() * Math.floor(1000))
 
