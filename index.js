@@ -20,11 +20,11 @@ const formatPerson = (person) => {
 }
 
 let persons = [
-    { name: 'Arto Hellas', number: '040-123456', id: 1 },
-    { name: 'Martti Tienari', number: '040-123456', id: 2 },
-    { name: 'Arto Järvinen', number: '040-123456', id: 3 },
-    { name: 'Lea Kutvonen', number: '040-123456', id: 4 }
-  ]
+  { name: 'Arto Hellas', number: '040-123456', id: 1 },
+  { name: 'Martti Tienari', number: '040-123456', id: 2 },
+  { name: 'Arto Järvinen', number: '040-123456', id: 3 },
+  { name: 'Lea Kutvonen', number: '040-123456', id: 4 }
+]
 
 morgan.token('body', function getBody (req) {
   return JSON.stringify(req.body)
@@ -43,7 +43,7 @@ app.get('/api/', (request, response) => {
   }    
 })
 
-app.get('/api/persons', async (request, response) => {
+app.get('/api/persons', async (response) => {
   try {
     const res = await Person.find({})
     if(res.length === 0) {
@@ -61,11 +61,11 @@ app.get('/api/persons/:id', async (request, response) => {
   try {
     const person = await Person.findById(request.params.id)
     response.json(formatPerson(person))
-  if ( person ) {
-    response.json(person)
-  } else {
-    response.status(404).end()
-  }
+    if ( person ) {
+      response.json(person)
+    } else {
+      response.status(404).end()
+    }
   } catch (error) {
     response.status(404).end()
   }
@@ -97,12 +97,14 @@ app.post('/api/persons', async (request, response) => {
       name: body.name,
       number: body.number
     })
-    // if(persons.filter(person => person.name === body.name)) {
-    //   throw new Error('name must be unique')
-    // }
-    // if(persons.filter(person => person.number === body.number).length > 0) {
-    //   throw new Error('number must be unique')
-    // }
+    const existingPerson = await Person.find({name: body.name})
+    if(existingPerson) {
+      response.status(400).end()
+    }
+    const existingNumber = await Person.find({name: body.number})
+    if(existingNumber) {
+      response.status(400).end()
+    }
   
     const savedPerson = await person.save()
     response.json(formatPerson(savedPerson))
@@ -127,16 +129,16 @@ app.put('/api/persons/:id', async (request, response) => {
 app.delete('/api/persons/:id', async (request, response) => {
   try {
     const person = await Person.findByIdAndDelete(request.params.id)
-  if ( person ) {
-    response.status(204).end()
-  } else {
-    response.status(404).end()
-  }
+    if ( person ) {
+      response.status(204).end()
+    } else {
+      response.status(404).end()
+    }
   } catch (error) {
     response.status(404).end()
   }
   
-  })
+})
 
 app.get('*', (request, response) => {
   response.send('<h1>Hello World!</h1>')

@@ -4,15 +4,17 @@ console.log(url)
 mongoose.connect(url)
 
 const Person = mongoose.Schema({
-    name: {
-      type: String,
-      required: true
-    },
-    number: {
-      type: Number,
-      required: true
-    },
-  })
+  name: {
+    type: String,
+    required: true,
+    unique: true
+  },
+  number: {
+    type: Number,
+    required: true,
+    unique: true
+  },
+})
 // const person = new Person(id = 956, name = 'Testi nimi', number = 423423423, {
 // id,
 // name,
