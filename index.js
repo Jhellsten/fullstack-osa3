@@ -119,11 +119,13 @@ app.post('/api/persons', async (request, response) => {
 app.put('/api/persons/:id', async (request, response) => {
   try {
     const { number } = request.body
-    const existingNumber = await Person.findOne({number})
-    console.log(existingNumber)
-    if(existingNumber.length > 0) {
-      response.status(400).send({error: 'number is in use'})
-    }
+    const existingNumber = await Person.findOne({number}, (err, person) => {
+      if(err) {
+        console.log(err)
+      } if(person) {
+        response.status(400).send({error: 'number is in use'})
+      }
+    })
     await Person.findOneAndUpdate({_id: request.params.id}, {number}, (err, person) => {
       if(err) {
         response.status(400).send({ error: 'malformatted id' })
