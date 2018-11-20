@@ -43,7 +43,7 @@ app.get('/api/', (request, response) => {
   }    
 })
 
-app.get('/api/persons', async (response) => {
+app.get('/api/persons', async (request, response) => {
   try {
     const res = await Person.find({})
     if(res.length === 0) {
@@ -97,11 +97,12 @@ app.post('/api/persons', async (request, response) => {
       name: body.name,
       number: body.number
     })
-    const existingPerson = await Person.find({name: body.name})
+    console.log(person)
+    const existingPerson = await Person.findOne({name: body.name})
     if(existingPerson) {
       response.status(400).end()
     }
-    const existingNumber = await Person.find({name: body.number})
+    const existingNumber = await Person.findOne({name: body.number})
     if(existingNumber) {
       response.status(400).end()
     }
@@ -117,9 +118,19 @@ app.post('/api/persons', async (request, response) => {
 
 app.put('/api/persons/:id', async (request, response) => {
   try {
-    const body = request.body
-    const res = await Person.findOneAndUpdate(request.params.id, body, { new: true } )
-    response.json(formatPerson(res))
+    const { number } = request.body
+    const existingNumber = await Person.findOne({number})
+    console.log(existingNumber)
+    if(existingNumber.length > 0) {
+      response.status(400).send({error: 'number is in use'})
+    }
+    await Person.findOneAndUpdate({_id: request.params.id}, {number}, (err, person) => {
+      if(err) {
+        response.status(400).send({ error: 'malformatted id' })
+      } else {
+        response.json(formatPerson(person))
+      }
+    })
   } catch (error) {
     console.log(error)
     response.status(400).send({ error: 'malformatted id' })

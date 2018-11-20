@@ -1,6 +1,5 @@
 const mongoose = require('mongoose')
 const url = process.env.MONGODB_URI
-console.log(url)
 mongoose.connect(url)
 
 const Person = mongoose.Schema({
@@ -11,8 +10,7 @@ const Person = mongoose.Schema({
   },
   number: {
     type: Number,
-    required: true,
-    unique: true
+    required: true
   },
 })
 // const person = new Person(id = 956, name = 'Testi nimi', number = 423423423, {
