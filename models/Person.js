@@ -13,17 +13,5 @@ const Person = mongoose.Schema({
     required: true
   },
 })
-// const person = new Person(id = 956, name = 'Testi nimi', number = 423423423, {
-// id,
-// name,
-// number
-// })
-
-// person
-// .save()
-// .then(response => {
-//     console.log('person saved!')
-//     mongoose.connection.close()
-// })
 
 module.exports = mongoose.model('Person', Person)
